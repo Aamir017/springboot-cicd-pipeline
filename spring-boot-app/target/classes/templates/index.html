@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title th:text="${title}">Habit Tracker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"/>
+    <link data-th-href="@{/css/main.css}" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Habit Tracker ✅</a>
+</nav>
+
+<main role="main" class="container">
+    <div class="starter-template text-center">
+        <h1 th:text="${title}">My Habit Tracker</h1>
+        <p th:text="${msg}">Track your daily habits and stay consistent!</p>
+
+        <div class="input-group mb-3">
+            <input type="text" id="habit-input" class="form-control" placeholder="Enter a habit (e.g. Drink Water)">
+            <div class="input-group-append">
+                <button class="btn btn-success" onclick="addHabit()">Add Habit</button>
+            </div>
+        </div>
+
+        <ul id="habit-list" class="list-group"></ul>
+    </div>
+</main>
+
+<script data-th-src="@{/js/main.js}"></script>
+</body>
+</html>
