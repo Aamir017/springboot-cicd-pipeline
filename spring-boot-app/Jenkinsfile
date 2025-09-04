@@ -8,7 +8,6 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        // Replace with your repo if you want auto checkout
         git branch: 'master', url: 'https://github.com/Aamir017/springboot-cicd-pipeline.git'
       }
     }
@@ -19,10 +18,27 @@ pipeline {
       }
     }
 
+    stage('Static Code Analysis - SonarQube') {
+      environment {
+        SONAR_URL = "http://<your-sonarqube-server>:9000"  // replace with your SonarQube server URL
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+          sh '''
+            cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+            mvn sonar:sonar \
+              -Dsonar.login=$SONAR_AUTH_TOKEN \
+              -Dsonar.host.url=${SONAR_URL} \
+              -Dsonar.projectKey=springboot-cicd-app
+          '''
+        }
+      }
+    }
+
     stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "aamir017/springboot-cicd-app:${BUILD_NUMBER}"
-        REGISTRY_CREDENTIALS = credentials('dockerhub-creds')  // Jenkins creds ID for DockerHub
+        REGISTRY_CREDENTIALS = credentials('docker-creds')
       }
       steps {
         script {
@@ -49,7 +65,7 @@ pipeline {
             sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
             git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
             git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
           '''
         }
       }
