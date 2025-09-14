@@ -14,13 +14,13 @@ pipeline {
 
     stage('Build and Test') {
       steps {
-        sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package -DskipTests'
+        sh 'cd spring-boot-app && mvn clean package -DskipTests'
       }
     }
 
     stage('Static Code Analysis - SonarQube') {
       environment {
-        SONAR_URL = "http://<your-sonarqube-server>:9000"  // replace with your SonarQube server URL
+        SONAR_URL = "http://18.215.150.158:9000"  // replace with your SonarQube server URL
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
@@ -62,7 +62,7 @@ pipeline {
           sh '''
             git config user.email "skaamir2005@gmail.com"
             git config user.name "Aamir017"
-            sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+            sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
             git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
             git commit -m "Update deployment image to version ${BUILD_NUMBER}"
             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
